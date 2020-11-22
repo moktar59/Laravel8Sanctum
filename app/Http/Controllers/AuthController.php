@@ -14,16 +14,18 @@ class AuthController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'required',
-            'password' => 'required'
+            'password' => 'required|min:8',
+            'user_type' => 'required'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['status_code' => 400, 'message' => 'Bad Request']);
+            return response()->json(['status_code' => 400, 'message' => 'Bad Request', 'error' => $validator->errors()]);
         }
 
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
+        $user->user_type = $request->user_type;
         $user->password = bcrypt($request->password);
         $user->save();
 
@@ -60,7 +62,8 @@ class AuthController extends Controller
 
         return response()->json([
             'status_code' => 200,
-            'token' => $tokenResult
+            'token' => $tokenResult,
+            'user' => $user
         ]);
     }
 
